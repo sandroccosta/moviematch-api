@@ -22,6 +22,27 @@ app.get("/health", (req, res) => {
   res.status(200).json({ message: "API MovieMatch está online" });
 });
 
+const supabase = require("./services/supabaseClient");
+
+app.get("/test-supabase", async (req, res) => {
+  try {
+    // Consulta todos os registros da tabela usuarios_auth
+    const { data, error } = await supabase.from("usuarios_auth").select("*");
+
+    if (error) throw error;
+
+    res.status(200).json({
+      status: "Conexão com Supabase funcionando!",
+      usuarios: data,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "Erro ao conectar com o Supabase",
+      erro: err.message,
+    });
+  }
+});
+
 //Inicializa o servidor na porta definida e imprimir no console que está rodando
 app.listen(process.env.PORT, () => {
   console.log(`Servidor rodando na porta ${process.env.PORT}`);
