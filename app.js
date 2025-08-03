@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import authRoutes from "./routes/public/auth.js";
+import perfilRoutes from "./routes/private/perfi.js";
+
+
 
 
 dotenv.config();
@@ -13,6 +16,7 @@ app.use(express.json());
 
 // Rotas
 app.use("/auth", authRoutes);
+app.use("/perfil", perfilRoutes);
 
 
 // Supabase client
