@@ -1,5 +1,5 @@
 import express from "express";
-import { verificarAutenticacao } from "../../middlewares/authMiddleware.js";
+import verificarAutenticacao from "../../middlewares/authMiddleware.js";
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 

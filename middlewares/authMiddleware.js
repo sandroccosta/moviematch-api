@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-export function verificarAutenticacao(req, res, next) {
+export default function authMiddleware(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -16,7 +16,7 @@ export function verificarAutenticacao(req, res, next) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.usuario = decoded; // Adiciona os dados do usuário na requisição
-        next(); // Continua para a próxima função (rota)
+        next(); // Continua
     } catch (err) {
         return res.status(401).json({ error: "Token inválido ou expirado." });
     }
