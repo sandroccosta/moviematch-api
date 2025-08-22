@@ -91,12 +91,12 @@ export async function gerarRecomendacoes(req, res) {
             console.log(`   Encontrados ${filmesDesteGenero.length} filmes do gênero.`);
             console.log(`   Após filtro de duração, restaram ${filmesFiltrados.length} filmes.`);
 
-            if (filmesFiltrados.length < 5 && filmesDesteGenero.length > filmesFiltrados.length) {
-                console.log(`   FALLBACK: A lista filtrada tem menos de 5 filmes. Usando a lista original do gênero para completar.`);
+            if (filmesFiltrados.length < 10 && filmesDesteGenero.length > filmesFiltrados.length) {
+                console.log(`   FALLBACK: A lista filtrada tem menos de 10 filmes. Usando a lista original do gênero para completar.`);
                 filmesFiltrados = filmesDesteGenero;
             }
             
-            const filmesParaAdicionar = filmesFiltrados.slice(0, 5);
+            const filmesParaAdicionar = filmesFiltrados.slice(0, 10);
             
             for (const filme of filmesParaAdicionar) {
                  const filmeFormatado = formatarFilmesOmdb(filme);
