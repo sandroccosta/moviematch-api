@@ -9,18 +9,18 @@ dotenv.config();
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// 1. BASE DE DADOS DE FILMES EXPANDIDA (IDs do IMDb)
+// 1. BASE DE DADOS DE FILMES EXPANDIDA E ATUALIZADA
 const filmesPorGenero_IMDb_IDs = {
-    'Ação': ['tt0095016', 'tt0133093', 'tt1392190', 'tt2911666', 'tt0468569', 'tt0120689', 'tt0083658', 'tt0110148', 'tt0107290'],
-    'Aventura': ['tt0082971', 'tt0107290', 'tt0120737', 'tt0325980', 'tt0167261', 'tt0112462', 'tt0080684'],
-    'Animação': ['tt0110357', 'tt0114709', 'tt0245429', 'tt4633694', 'tt0495450', 'tt0435761', 'tt2948356', 'tt0268380'],
-    'Comédia': ['tt1119646', 'tt0829482', 'tt0386140', 'tt0094737', 'tt0107048', 'tt0144084', 'tt0405422', 'tt0116282'],
-    'Crime': ['tt0068646', 'tt0110912', 'tt0099685', 'tt0114369', 'tt0407887', 'tt0105236', 'tt0137523'],
-    'Drama': ['tt0111161', 'tt0109830', 'tt0108052', 'tt0120689', 'tt0169547', 'tt0102802', 'tt0071562'],
-    'Fantasia': ['tt0457430', 'tt0241527', 'tt0903624', 'tt0120737', 'tt0167260', 'tt0120915', 'tt1201607'],
-    'Ficção Científica': ['tt1856101', 'tt0816692', 'tt0088763', 'tt0062622', 'tt0080684', 'tt0083658', 'tt1375666', 'tt0133093'],
-    'Terror': ['tt0081505', 'tt0070047', 'tt5052448', 'tt1457767', 'tt0102926', 'tt8772262', 'tt0063522', 'tt0078748'],
-    'Romance': ['tt0120338', 'tt0332280', 'tt0338013', 'tt0414387', 'tt0119177', 'tt0100405', 'tt1010048', 'tt0045551']
+    'Ação': ['tt1392190', 'tt2911666', 'tt0468569', 'tt1745960', 'tt1160419', 'tt10872600', 'tt6710474', 'tt0133093', 'tt7286456', 'tt0095016', 'tt1375666'],
+    'Aventura': ['tt0082971', 'tt0120737', 'tt2283362', 'tt13320622', 'tt4154796', 'tt0107290', 'tt3659388', 'tt0167261', 'tt0369610', 'tt0088763'],
+    'Animação': ['tt4633694', 'tt2948372', 'tt4729430', 'tt3581652', 'tt9426210', 'tt7975244', 'tt2380307', 'tt0114709', 'tt0495450', 'tt0245429'],
+    'Comédia': ['tt1489887', 'tt9484998', 'tt11286314', 'tt8946378', 'tt7734218', 'tt0829482', 'tt2096673', 'tt0107048', 'tt0116282', 'tt0386140'],
+    'Crime': ['tt0068646', 'tt0110912', 'tt0099685', 'tt7286456', 'tt1302006', 'tt8946378', 'tt5052448', 'tt0407887', 'tt0114369', 'tt0105236'],
+    'Drama': ['tt6751668', 'tt9770150', 'tt10618286', 'tt15398776', 'tt13238346', 'tt0111161', 'tt0109830', 'tt0469494', 'tt0169547', 'tt0120586'],
+    'Fantasia': ['tt6710474', 'tt5580390', 'tt9411972', 'tt0457430', 'tt0120737', 'tt0167260', 'tt1201607', 'tt0093779', 'tt0903624', 'tt1950186'],
+    'Ficção Científica': ['tt1160419', 'tt2543164', 'tt10954984', 'tt6710474', 'tt1856101', 'tt0816692', 'tt1630029', 'tt1375666', 'tt0133093', 'tt0080684'],
+    'Terror': ['tt7784604', 'tt8772262', 'tt6644200', 'tt15791034', 'tt10638522', 'tt5052448', 'tt0070047', 'tt0081505', 'tt2275940', 'tt1457767'],
+    'Romance': ['tt3783958', 'tt8613070', 'tt13238346', 'tt5726616', 'tt0332280', 'tt0338013', 'tt0414387', 'tt0100405', 'tt0119177', 'tt1010048']
 };
 
 // 2. MAPA DE TRADUÇÃO DE GÊNEROS
@@ -45,7 +45,6 @@ function parseRuntime(runtimeString) {
     return parseInt(runtimeString.replace(' min', ''));
 }
 
-
 // 4. CONTROLLER PRINCIPAL COM LÓGICA DE FALLBACK E DEBUG
 export async function gerarRecomendacoes(req, res) {
     try {
@@ -55,7 +54,7 @@ export async function gerarRecomendacoes(req, res) {
 
         const { generos_favoritos, duracao_preferida } = preferencias;
         const filtroDuracao = parseDuracao(duracao_preferida);
-        
+
         console.log("Preferências do usuário:", { generos_favoritos, duracao_preferida });
         console.log("Filtro de duração aplicado:", filtroDuracao || "Nenhum");
 
@@ -88,12 +87,12 @@ export async function gerarRecomendacoes(req, res) {
                 const runtimeMinutos = parseRuntime(filme.Runtime);
                 return runtimeMinutos && runtimeMinutos >= filtroDuracao.min && runtimeMinutos <= filtroDuracao.max;
             });
-            
+
             console.log(`   Encontrados ${filmesDesteGenero.length} filmes do gênero.`);
             console.log(`   Após filtro de duração, restaram ${filmesFiltrados.length} filmes.`);
-            
-            if (filmesFiltrados.length === 0 && filmesDesteGenero.length > 0) {
-                console.log(`   FALLBACK: Nenhum filme passou no filtro de duração. Usando a lista original do gênero.`);
+
+            if (filmesFiltrados.length < 5 && filmesDesteGenero.length > filmesFiltrados.length) {
+                console.log(`   FALLBACK: A lista filtrada tem menos de 5 filmes. Usando a lista original do gênero para completar.`);
                 filmesFiltrados = filmesDesteGenero;
             }
             
